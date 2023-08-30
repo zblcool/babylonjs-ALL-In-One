@@ -1,18 +1,21 @@
 import React from "react";
-import { FreeCamera, Vector3, HemisphericLight, MeshBuilder, Scene, PointerDragBehavior } from "@babylonjs/core";
+import { FreeCamera, Vector3, HemisphericLight, MeshBuilder, Scene, PointerDragBehavior, StandardMaterial, UniversalCamera, GamepadCamera, SceneLoader, ArcRotateCamera } from "@babylonjs/core";
 import SceneComponent from "./SceneComponent"; // uses above component in same directory
 // import SceneComponent from 'babylonjs-hook'; // if you install 'babylonjs-hook' NPM.
 import "./App.css";
 import { Inspector } from '@babylonjs/inspector';
-
+import MeshBahaviour from "./component/Mesh/MeshBahaviour";
+import heightMap from "./images/heatmap.jpg"
 let box: any; // Define the box object which will be able to be accessed by other functions
 let ground : any;
+let sphere : any;
+let heatmap : any;
 
-const onSceneReady = (scene : Scene) => {
+const onSceneReady = async (scene : Scene) => {
 
   Inspector.Show(scene, {});
   // This creates and positions a free camera (non-mesh)
-  const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
+  const camera = new ArcRotateCamera("camera1",0, 0.8, 100, new Vector3(15, 15, -20), scene);
   
   // This targets the camera to scene origin
   camera.setTarget(Vector3.Zero());
@@ -21,6 +24,7 @@ const onSceneReady = (scene : Scene) => {
 
   // This attaches the camera to the canvas
   camera.attachControl(canvas, true);
+  
 
   // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
   const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
@@ -30,31 +34,26 @@ const onSceneReady = (scene : Scene) => {
 
   // Our built-in 'box' shape.
   box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
+  box.position = new Vector3(4.533, 1, -4.533);
  // Our built-in 'ground' shape.
- ground = MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
 
-  var pointerDragBehavior = new PointerDragBehavior({dragPlaneNormal: new Vector3(0,1,0)});
-    
-  // Use drag plane in world space
-  pointerDragBehavior.useObjectOrientationForDragging = false;
+ const importPromise =  SceneLoader.ImportMeshAsync(null ,"./models/my_computer/", "scene.gltf", scene);
+importPromise.then((result) => {
+  //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
+  camera.setTarget(result.meshes[0]);
+  result.meshes[0].position.y =3
+});
 
-  // Listen to drag events
-  pointerDragBehavior.onDragStartObservable.add((event)=>{
-      console.log("dragStart");
-      console.log(event);
-  })
-  pointerDragBehavior.onDragObservable.add((event)=>{
-      console.log("drag");
-      console.log(event);
-  })
-  pointerDragBehavior.onDragEndObservable.add((event)=>{
-      console.log("dragEnd");
-      console.log(event);
-  })
-
+ sphere = MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+ sphere.position = new Vector3(-4.533, 1, 4.533);
+ // create a heatmap 
+ // the heightMap should be imported first and then passed to the createGroundFromHeightMap function
+ // instead of passing a string of URL.
+  ground = MeshBuilder.CreateGroundFromHeightMap("gdhm", heightMap, {width:10, height :10, subdivisions: 15, maxHeight: 3},scene);
+  ground.position = new Vector3(0, 0, 0);
   // If handling drag events manually is desired, set move attached to false
   // pointerDragBehavior.moveAttached = false;
-
+  const pointerDragBehavior = MeshBahaviour.addPointBehaviour()
   box.addBehavior(pointerDragBehavior);
   // Move the box upward 1/2 its height
   box.position.y = 1;
