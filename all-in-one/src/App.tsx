@@ -37,19 +37,7 @@ const onSceneReady = async (scene : Scene) => {
   box.position = new Vector3(4.533, 1, -4.533);
  // Our built-in 'ground' shape.
 
- const importPromise =  SceneLoader.ImportMeshAsync(null ,"./models/my_computer/", "scene.gltf", scene);
-importPromise.then((result) => {
-  //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
-  camera.setTarget(result.meshes[0]);
-  result.meshes[0].position.y =3;
-});
-const importPromise2 =  SceneLoader.ImportMeshAsync(null ,"./models/", "standing_desk.glb", scene);
-importPromise2.then((result) => {
-  //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
-  
-  result.meshes[0].position = new Vector3(2, 2, -2);
-  result.meshes[0].scaling = new Vector3(2, 2, 2);
-});
+
 
 
  sphere = MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
@@ -61,11 +49,26 @@ importPromise2.then((result) => {
   ground.position = new Vector3(0, 0, 0);
   // If handling drag events manually is desired, set move attached to false
   // pointerDragBehavior.moveAttached = false;
-  const pointerDragBehavior = MeshBahaviour.addPointBehaviour()
-  box.addBehavior(pointerDragBehavior);
+
+  box.addBehavior(MeshBahaviour.addPointBehaviour());
   // Move the box upward 1/2 its height
   box.position.y = 1;
 
+  const importPromise =  SceneLoader.ImportMeshAsync(null ,"./models/my_computer/", "scene.gltf", scene);
+  importPromise.then((result) => {
+    //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
+    // camera.setTarget(result.meshes[0]);
+    result.meshes[0].position.y =3;
+    result.meshes[0].addBehavior(MeshBahaviour.addPointBehaviour());
+  });
+  const importPromise2 =  SceneLoader.ImportMeshAsync(null ,"./models/", "standing_desk.glb", scene);
+  importPromise2.then((result) => {
+    //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
+    
+    result.meshes[0].position = new Vector3(2, 2, -2);
+    result.meshes[0].scaling = new Vector3(2, 2, 2);
+    result.meshes[0].addBehavior(MeshBahaviour.addPointBehaviour());
+  });
  
 };
 
