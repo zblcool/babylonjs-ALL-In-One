@@ -5,7 +5,7 @@ import SceneComponent from "./SceneComponent"; // uses above component in same d
 import "./App.css";
 import { Inspector } from '@babylonjs/inspector';
 import MeshBahaviour from "./component/Mesh/MeshBahaviour";
-import heightMap from "./images/heatmap.jpg"
+import heightMap from "./images/heatmap.png"
 let box: any; // Define the box object which will be able to be accessed by other functions
 let ground : any;
 let sphere : any;
@@ -41,8 +41,16 @@ const onSceneReady = async (scene : Scene) => {
 importPromise.then((result) => {
   //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
   camera.setTarget(result.meshes[0]);
-  result.meshes[0].position.y =3
+  result.meshes[0].position.y =3;
 });
+const importPromise2 =  SceneLoader.ImportMeshAsync(null ,"./models/", "standing_desk.glb", scene);
+importPromise2.then((result) => {
+  //// Result has meshes, particleSystems, skeletons, animationGroups and transformNodes
+  
+  result.meshes[0].position = new Vector3(2, 2, -2);
+  result.meshes[0].scaling = new Vector3(2, 2, 2);
+});
+
 
  sphere = MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
  sphere.position = new Vector3(-4.533, 1, 4.533);
