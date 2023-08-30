@@ -12,8 +12,11 @@ let sphere : any;
 let heatmap : any;
 
 const onSceneReady = async (scene : Scene) => {
-
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if (!isMobile) {
   Inspector.Show(scene, {});
+}
+ 
   // This creates and positions a free camera (non-mesh)
   const camera = new ArcRotateCamera("camera1",0, 0.8, 100, new Vector3(15, 15, -20), scene);
   
